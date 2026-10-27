@@ -88,3 +88,22 @@ npx wrangler secret put NUXT_PLAN_ACCESS_TOKEN
 공개 사이트의 방문자도 기록·메트로놈을 사용할 수 있으나, 계획 생성에는 접근 토큰이 필요합니다. 브라우저별 기록은 다른 도메인으로 자동 이전되지 않습니다.
 
 Codex에서 기본 인증 폴더에 쓸 수 없는 경우 Wrangler가 지원하는 `XDG_CONFIG_HOME`을 별도 작업 폴더로 지정할 수 있습니다. 로그인과 배포에 동일한 값을 사용하며, 해당 인증 폴더는 Git 저장소에 넣지 않습니다.
+
+## develop → PR → main → 프로덕션 버전
+
+1. `develop`에서 작업하고 커밋한 뒤 `develop`을 push합니다.
+2. `develop` → `main` PR을 만들고 검증 결과를 확인한 뒤 병합합니다.
+3. `main`에 반영되면 `Production release`가 전체 검증을 실행합니다.
+4. 검증 성공 후 GitHub `production` 환경에서 해당 커밋을 Cloudflare에 배포합니다.
+5. 실제 `/release.json`의 버전·커밋과 홈페이지 정상 응답을 확인한 후에만 같은 커밋에 annotated tag를 만들고 push합니다.
+
+태그는 최초 `v0.1.0`, 이후 `v0.1.1`, `v0.1.2`처럼 패치 번호가 자동 증가합니다. 일반 태그나 prerelease 태그는 계산에서 제외합니다. 배포 실패 시 태그는 생성되지 않습니다. 같은 배포의 재실행은 이미 태그된 커밋을 다시 배포하거나 중복 태그하지 않으며, 이전 커밋의 재실행도 최신 버전을 되돌리지 않습니다. 태그 생성에 실패하면 실행을 재시도할 수 있습니다. 자동 생성된 태그를 수정하거나 삭제하지 마세요.
+
+동시 배포는 `production` 그룹으로 직렬화하며 진행 중 배포를 취소하지 않습니다. 수동 재실행은 main의 `Production release` 워크플로에서 가능합니다. main 직접 push도 동일하게 배포되므로 일반 변경은 develop PR 경로를 사용하세요. 이 변경은 main의 PR 병합을 강제로 제한하는 branch protection을 자동으로 바꾸지는 않습니다.
+
+GitHub 저장소 Settings → Environments → `production`에 다음을 설정합니다.
+
+- Secret `CLOUDFLARE_API_TOKEN`: Cloudflare 배포 전용 API 토큰. 개인 로그인용 OAuth 토큰은 만료되므로 사용하지 않습니다.
+- Variable `CLOUDFLARE_ACCOUNT_ID`: 배포 계정 ID. 비밀 키가 아닙니다.
+
+이 환경은 main에서만 사용할 수 있게 제한합니다. API 토큰은 Fret Lab Worker를 배포하는 데 필요한 범위만 부여하며 Git, PR 본문, 로그에 남기지 않습니다. Claude 런타임 API 키는 계속 Cloudflare Worker secret에서 별도로 관리됩니다.

@@ -1,0 +1,69 @@
+name: Production release
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fret-lab-production
+  cancel-in-progress: false
+  queue: max
+jobs:
+  checks:
+    uses: ./.github/workflows/ci.yml
+  deploy:
+    needs: checks
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: https://fret-lab-guitar-practice.emily-jang.workers.dev
+    permissions:
+      contents: write
+    env:
+      PRODUCTION_URL: https://fret-lab-guitar-practice.emily-jang.workers.dev
+      WRANGLER_SEND_METRICS: "false"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Select next production version
+        id: release
+        run: node scripts/release.mjs prepare
+      - name: Check deployment credentials
+        if: steps.release.outputs.should_deploy == 'true'
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          test -n "$CF_TOKEN" || { echo 'Missing production secret CLOUDFLARE_API_TOKEN'; exit 1; }
+          test -n "$CF_ACCOUNT" || { echo 'Missing production variable CLOUDFLARE_ACCOUNT_ID'; exit 1; }
+      - name: Install dependencies
+        if: steps.release.outputs.should_deploy == 'true'
+        run: npm ci
+      - name: Deploy exact commit to Cloudflare
+        if: steps.release.outputs.should_deploy == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          FRET_LAB_RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          FRET_LAB_RELEASE_SHA: ${{ steps.release.outputs.sha }}
+        run: npm run deploy:cloudflare
+      - name: Verify live version and health
+        if: steps.release.outputs.should_deploy == 'true'
+        env:
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          RELEASE_SHA: ${{ steps.release.outputs.sha }}
+        run: node scripts/verify-production.mjs
+      - name: Tag successful production release
+        if: steps.release.outputs.should_deploy == 'true'
+        env:
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+        run: node scripts/release.mjs tag

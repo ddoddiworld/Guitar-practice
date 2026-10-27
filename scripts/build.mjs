@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 import { cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { releaseMetadata } from "./release-version.mjs";
 const sites =
   process.env.FRET_LAB_TARGET === "sites" || process.argv.includes("--sites");
 const cloudflare =
@@ -24,6 +25,17 @@ const result = spawnSync(
   },
 );
 if (result.status !== 0) process.exit(result.status || 1);
+if (cloudflare && !sites) {
+  const release = releaseMetadata(
+    process.env.FRET_LAB_RELEASE_TAG,
+    process.env.FRET_LAB_RELEASE_SHA,
+  );
+  if (release)
+    await writeFile(
+      ".output/public/release.json",
+      JSON.stringify(release) + "\n",
+    );
+}
 if (!sites) process.exit(0);
 // Keep the normal Node build available; adapt the native Nitro Worker output to Sites.
 await rm("dist", { recursive: true, force: true });
