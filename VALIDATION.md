@@ -24,4 +24,4 @@ Worker 전용 접근 토큰 검증을 포함한 단위 테스트 11개와 타입
 
 ## Cloudflare 직접 공개 배포 준비
 
-직접 배포용 Wrangler 설정을 추가했습니다. 타입 검사, 단위 테스트 11개, Cloudflare Worker 빌드 및 `wrangler deploy --dry-run`을 통과했습니다. 실제 공개 배포는 Cloudflare 재로그인 완료 후 실행합니다. 기본 Node 서버와 기존 Sites 빌드도 유지합니다.
+직접 배포용 Wrangler 설정을 추가했습니다. 타입 검사, 단위 테스트 11개, Cloudflare Worker 빌드 및 `wrangler deploy --dry-run`을 통과했습니다. 2026-10-27 Cloudflare 재로그인 후 공개 배포를 완료했습니다. 배포 버전은 `c5816c1a-cc1d-49bf-889f-0d2962d9bd37`입니다. 실제 공개 주소에서 HTML·JS·CSS 200 응답과 키 미설정 API의 503 안내 응답을 확인했습니다. 기본 Node 서버와 기존 Sites 빌드도 유지합니다.

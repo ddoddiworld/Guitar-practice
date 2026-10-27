@@ -65,6 +65,8 @@ Claude 기능을 활성화하려면 Sites 런타임 환경 변수에 `NUXT_ANTHR
 
 ## Cloudflare 계정에 직접 공개 배포
 
+공개 배포 주소: https://fret-lab-guitar-practice.emily-jang.workers.dev
+
 Sites를 거치지 않고 Cloudflare Workers에 서버와 정적 파일을 함께 배포할 수 있습니다. `wrangler.jsonc`가 공개 `workers.dev` 주소를 사용하도록 설정되어 있습니다. 기존 Sites 배포는 별도로 유지됩니다.
 
 ```sh
@@ -84,3 +86,5 @@ npx wrangler secret put NUXT_PLAN_ACCESS_TOKEN
 ```
 
 공개 사이트의 방문자도 기록·메트로놈을 사용할 수 있으나, 계획 생성에는 접근 토큰이 필요합니다. 브라우저별 기록은 다른 도메인으로 자동 이전되지 않습니다.
+
+Codex에서 기본 인증 폴더에 쓸 수 없는 경우 Wrangler가 지원하는 `XDG_CONFIG_HOME`을 별도 작업 폴더로 지정할 수 있습니다. 로그인과 배포에 동일한 값을 사용하며, 해당 인증 폴더는 Git 저장소에 넣지 않습니다.
