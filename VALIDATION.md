@@ -1,0 +1,17 @@
+# 검증 기록
+
+2026-10-27, Node.js 24.22.1 환경에서 검증했습니다.
+
+- TypeScript 검사 통과 (`npm run typecheck`)
+- 단위 테스트 10개 통과: 일별/주간 집계, 연속 일수, 연도 경계, 잘못된 날짜/시간/BPM, API 입력 범위, Claude 요청 헤더/본문, 오류 및 빈/잘린 응답 처리
+- 프로덕션 빌드 통과 (`npm run build`)
+- 앱 내 브라우저에서 곡 등록, 완성도, 기록 추가, 새로고침 후 유지, 대시보드 집계, 메트로놈 시작/정지, API 키 미설정 오류 안내 확인
+- 390px 모바일 화면의 레이아웃 및 가로 넘침 없음 확인
+
+로컬 Playwright CLI 실행은 macOS 샌드박스의 Mach port 접근 제한으로 브라우저를 시작하지 못했습니다. 테스트 시나리오는 `.github/workflows/ci.yml`에서 Linux Chromium으로 자동 검증하도록 구성했습니다. 로컬에서는 `npm run build` 후 `npm run test:e2e`로 실행합니다.
+
+실제 Anthropic API 키가 제공되지 않아 유료 API 호출은 수행하지 않았습니다. Claude 응답 처리는 주입한 모의 HTTP 응답으로 검증했습니다. 실제 스피커 소리와 백그라운드 탭의 장시간 오디오 동작은 별도 수동 확인이 필요합니다.
+
+## 남아 있는 의존성 경고
+
+`npm audit`는 Nuxt → Nitro → listhen → node-forge 1.4.0의 RSA 서명 검증 취약점(GHSA-86w9-cpqp-85rv)을 보고합니다. 이 단일 하위 의존성 때문에 상위 패키지까지 7개의 high 경고가 전파됩니다. 현재 호환 가능한 수정 버전이 없어 유지했습니다. 이 앱은 node-forge RSA 검증 기능을 직접 사용하지 않습니다. `npm audit fix --force`가 제안하는 이전 Nuxt로의 다운그레이드는 다른 보안 수정을 제거하므로 적용하지 않았습니다.
