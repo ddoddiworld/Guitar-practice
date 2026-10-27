@@ -107,3 +107,5 @@ GitHub 저장소 Settings → Environments → `production`에 다음을 설정�
 - Variable `CLOUDFLARE_ACCOUNT_ID`: 배포 계정 ID. 비밀 키가 아닙니다.
 
 이 환경은 main에서만 사용할 수 있게 제한합니다. API 토큰은 Fret Lab Worker를 배포하는 데 필요한 범위만 부여하며 Git, PR 본문, 로그에 남기지 않습니다. Claude 런타임 API 키는 계속 Cloudflare Worker secret에서 별도로 관리됩니다.
+
+설정된 자동 배포 토큰: `Fret Lab GitHub production deploy`. `fret-lab-guitar-practice` Worker의 `Individual Workers Editor` 범위만 허용하며 만료일은 2027-10-27입니다. 만료 전에 Cloudflare에서 교체 토큰을 만들고 GitHub production의 같은 Secret을 갱신하세요.
