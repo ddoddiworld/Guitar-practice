@@ -1,5 +1,5 @@
 import { requestPlan } from "../utils/claude";
-import { timingSafeEqual } from "node:crypto";
+import { verifyPlanToken } from "../utils/token";
 import { planRequestSchema } from "#shared/practice";
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event);
@@ -10,9 +10,7 @@ export default defineEventHandler(async (event) => {
     });
   const token = getHeader(event, "x-plan-token") || "";
   if (config.planAccessToken) {
-    const expected = Buffer.from(config.planAccessToken),
-      actual = Buffer.from(token);
-    if (expected.length !== actual.length || !timingSafeEqual(expected, actual))
+    if (!(await verifyPlanToken(token, config.planAccessToken)))
       throw createError({
         statusCode: 401,
         statusMessage: "계획 생성 접근 토큰을 확인해 주세요.",

@@ -51,3 +51,14 @@ npx playwright test
 ```
 
 단위 테스트는 날짜 경계, 통계와 입력 검증을 검사합니다. 브라우저 테스트는 데스크톱/모바일에서 곡 추가, 완성도 변경, 재접속 후 유지, 기록 추가, 대시보드 집계, 메트로놈 시작/정지, API 미설정 안내 및 모의 계획 응답의 안전한 표시를 검사합니다. 실제 유료 Claude 호출은 API 키가 있을 때 수동 검증해야 합니다. 브라우저 자동 테스트는 실제 스피커 소리나 백그라운드 탭의 오디오 타이밍을 보증하지 않습니다.
+
+## Sites 배포
+
+`.openai/hosting.json`에 연결된 비공개 Sites 프로젝트 ID를 보존합니다.
+
+- `npm run build`: 기존 Node 서버 빌드
+- `npm run build:sites`: Nuxt의 Cloudflare Worker 빌드 후 `dist/server/index.js`와 호스팅 메타데이터 패키징
+
+Sites에서 다시 배포할 때는 소스를 먼저 동기화한 뒤 동일 커밋에서 만든 배포 파일을 업로드합니다. 클라이언트 파일은 Worker 배포 파일에 포함되며 API도 같은 주소에서 실행됩니다. 예정 주소는 `https://fret-lab-guitar-practice.noisynote513.chatgpt.site`이며, 실제 배포 성공 여부는 Sites 배포 상태로 확인합니다. 기본 접근 권한은 본인 전용입니다.
+
+Claude 기능을 활성화하려면 Sites 런타임 환경 변수에 `NUXT_ANTHROPIC_API_KEY`와 `NUXT_PLAN_ACCESS_TOKEN`을 설정한 후 다시 배포하세요. 비밀 값을 Git이나 브라우저 코드에 넣지 않습니다. API 키가 없는 상태에서도 기록, 연습곡, 대시보드, 메트로놈을 사용할 수 있습니다.
