@@ -21,3 +21,7 @@
 Worker 전용 접근 토큰 검증을 포함한 단위 테스트 11개와 타입 검사를 통과했습니다. Cloudflare Worker 빌드 후 SSR HTML, 정적 JS, HEAD, 허용되지 않은 메서드 거부, API 키 미설정 오류, 프로젝트 ID 검사를 통과했습니다. Node 서버 빌드도 유지합니다.
 
 사이트의 기본 접근 권한은 소유자 본인 전용입니다. 게시 성공 여부와 실제 접속 주소는 Sites 배포 상태를 통해 확인합니다.
+
+## Cloudflare 직접 공개 배포 준비
+
+직접 배포용 Wrangler 설정을 추가했습니다. 타입 검사, 단위 테스트 11개, Cloudflare Worker 빌드 및 `wrangler deploy --dry-run`을 통과했습니다. 실제 공개 배포는 Cloudflare 재로그인 완료 후 실행합니다. 기본 Node 서버와 기존 Sites 빌드도 유지합니다.

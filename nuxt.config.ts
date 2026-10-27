@@ -1,6 +1,9 @@
 export default defineNuxtConfig({
   compatibilityDate: "2026-01-01",
   devtools: { enabled: false },
+  nitro: {
+    cloudflare: { nodeCompat: process.env.FRET_LAB_TARGET === "cloudflare" },
+  },
   css: ["~/assets/main.css"],
   runtimeConfig: {
     anthropicApiKey: "",

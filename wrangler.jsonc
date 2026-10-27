@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "fret-lab-guitar-practice",
+  "main": ".output/server/index.mjs",
+  "compatibility_date": "2026-01-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "assets": {
+    "directory": ".output/public",
+    "binding": "ASSETS",
+  },
+  "build": { "command": "npm run build:cloudflare" },
+  "vars": { "NUXT_ANTHROPIC_MODEL": "claude-sonnet-4-5" },
+}

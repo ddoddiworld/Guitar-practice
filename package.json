@@ -11,7 +11,10 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "build:sites": "node scripts/build.mjs --sites",
-    "test:sites": "node scripts/check-sites.mjs"
+    "test:sites": "node scripts/check-sites.mjs",
+    "build:cloudflare": "node scripts/build.mjs --cloudflare",
+    "deploy:cloudflare": "wrangler deploy",
+    "check:cloudflare": "wrangler deploy --dry-run"
   },
   "dependencies": {
     "nuxt": "^4.6.3",
@@ -24,7 +27,8 @@
     "prettier": "^3.9.10",
     "typescript": "^5.8.0",
     "vitest": "^5.0.5",
-    "vue-tsc": "^2.2.0"
+    "vue-tsc": "^2.2.0",
+    "wrangler": "^4.153.0"
   },
   "engines": {
     "node": "^22.22.3 || ^24.15.0 || >=26.0.0"

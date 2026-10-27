@@ -3,6 +3,10 @@ import { cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 const sites =
   process.env.FRET_LAB_TARGET === "sites" || process.argv.includes("--sites");
+const cloudflare =
+  sites ||
+  process.env.FRET_LAB_TARGET === "cloudflare" ||
+  process.argv.includes("--cloudflare");
 const result = spawnSync(
   process.execPath,
   ["node_modules/nuxt/bin/nuxt.mjs", "build"],
@@ -10,7 +14,12 @@ const result = spawnSync(
     stdio: "inherit",
     env: {
       ...process.env,
-      ...(sites ? { NITRO_PRESET: "cloudflare_module" } : {}),
+      ...(cloudflare
+        ? {
+            NITRO_PRESET: "cloudflare_module",
+            FRET_LAB_TARGET: sites ? "sites" : "cloudflare",
+          }
+        : {}),
     },
   },
 );

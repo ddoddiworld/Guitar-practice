@@ -9,3 +9,7 @@ test-results
 playwright-report
 
 dist
+
+.wrangler
+.dev.vars
+.dev.vars.*

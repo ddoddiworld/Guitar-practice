@@ -62,3 +62,25 @@ npx playwright test
 Sites에서 다시 배포할 때는 소스를 먼저 동기화한 뒤 동일 커밋에서 만든 배포 파일을 업로드합니다. 클라이언트 파일은 Worker 배포 파일에 포함되며 API도 같은 주소에서 실행됩니다. 예정 주소는 `https://fret-lab-guitar-practice.noisynote513.chatgpt.site`이며, 실제 배포 성공 여부는 Sites 배포 상태로 확인합니다. 기본 접근 권한은 본인 전용입니다.
 
 Claude 기능을 활성화하려면 Sites 런타임 환경 변수에 `NUXT_ANTHROPIC_API_KEY`와 `NUXT_PLAN_ACCESS_TOKEN`을 설정한 후 다시 배포하세요. 비밀 값을 Git이나 브라우저 코드에 넣지 않습니다. API 키가 없는 상태에서도 기록, 연습곡, 대시보드, 메트로놈을 사용할 수 있습니다.
+
+## Cloudflare 계정에 직접 공개 배포
+
+Sites를 거치지 않고 Cloudflare Workers에 서버와 정적 파일을 함께 배포할 수 있습니다. `wrangler.jsonc`가 공개 `workers.dev` 주소를 사용하도록 설정되어 있습니다. 기존 Sites 배포는 별도로 유지됩니다.
+
+```sh
+npm ci
+npx wrangler login
+npm run check:cloudflare
+npm run deploy:cloudflare
+```
+
+`check:cloudflare`는 Nuxt Worker 빌드와 업로드 파일 검증만 수행하고 실제 배포하지 않습니다. `deploy:cloudflare`는 로그인한 Cloudflare 계정에 배포하고 실제 주소를 표시합니다. 여러 계정이 연결되어 있으면 `CLOUDFLARE_ACCOUNT_ID` 환경 변수로 배포할 계정을 지정하세요.
+
+Claude 관련 비밀 값은 Cloudflare에 저장합니다. 명령 실행 후 프롬프트에서 입력하며, 파일이나 명령 인수에 키를 넣지 않습니다.
+
+```sh
+npx wrangler secret put NUXT_ANTHROPIC_API_KEY
+npx wrangler secret put NUXT_PLAN_ACCESS_TOKEN
+```
+
+공개 사이트의 방문자도 기록·메트로놈을 사용할 수 있으나, 계획 생성에는 접근 토큰이 필요합니다. 브라우저별 기록은 다른 도메인으로 자동 이전되지 않습니다.
