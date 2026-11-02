@@ -3,7 +3,6 @@ import {
   summarize,
   recordSchema,
   songSchema,
-  planRequestSchema,
   weekDays,
   type PracticeRecord,
 } from "../shared/practice";
@@ -80,24 +79,6 @@ describe("input validation", () => {
         artist: "",
         bpm: 241,
         progress: 0,
-      }).success,
-    ).toBe(false);
-  });
-  it("bounds API payloads", () => {
-    expect(
-      planRequestSchema.safeParse({
-        goal: "Test",
-        dailyMinutes: 30,
-        songs: [],
-        records: [],
-      }).success,
-    ).toBe(true);
-    expect(
-      planRequestSchema.safeParse({
-        goal: "Test",
-        dailyMinutes: 300,
-        songs: [],
-        records: [],
       }).success,
     ).toBe(false);
   });

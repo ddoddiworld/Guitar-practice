@@ -11,5 +11,4 @@
     "binding": "ASSETS",
   },
   "build": { "command": "npm run build:cloudflare" },
-  "vars": { "NUXT_ANTHROPIC_MODEL": "claude-sonnet-4-5" },
 }
