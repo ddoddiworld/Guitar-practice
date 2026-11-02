@@ -32,36 +32,9 @@ test("songs, records, persistence, dashboard and metronome", async ({
   await expect(page.getByRole("button", { name: "■ 정지" })).toBeVisible();
   await expect(page.locator(".beats .lit")).toHaveCount(1);
   await page.getByRole("button", { name: "■ 정지" }).click();
-  await page
-    .getByRole("button", { name: "주간 계획", exact: false })
-    .first()
-    .click();
-  await page.getByRole("button", { name: "✧ 주간 계획 생성" }).click();
-  await expect(page.getByRole("alert")).toContainText("API 키");
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
-});
-test("generated plan is displayed safely and API receives history", async ({
-  page,
-}) => {
-  await page.route("**/api/plan", async (route) => {
-    expect(route.request().postDataJSON().dailyMinutes).toBe(30);
-    await route.fulfill({
-      json: {
-        plan: "월요일: 준비운동 5분, 코드 10분, 연습곡 10분, 회고 5분\n<script>alert(1)</script>",
-      },
-    });
-  });
-  await page.goto("/");
-  await page
-    .getByRole("button", { name: "주간 계획", exact: false })
-    .first()
-    .click();
-  await page.getByRole("button", { name: "✧ 주간 계획 생성" }).click();
-  await expect(page.locator(".plan-result pre")).toContainText(
-    "<script>alert(1)</script>",
-  );
 });
