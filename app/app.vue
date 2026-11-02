@@ -9,7 +9,7 @@ const { songs, records, storageError } = usePractice();
 const metro = useMetronome();
 const { bpm, beats, running, beat } = metro;
 const tab = ref("대시보드"),
-  tabs = ["대시보드", "연습 기록", "연습곡", "주간 계획"];
+  tabs = ["대시보드", "연습 기록", "연습곡"];
 const today = useState("today", () => localDate());
 onMounted(() => {
   today.value = localDate();
@@ -27,13 +27,7 @@ const recordForm = reactive({
   note: "",
 });
 const formError = ref(""),
-  notice = ref(""),
-  goal = ref("코드 전환을 부드럽게 하고 좋아하는 곡 한 곡 완주하기"),
-  dailyMinutes = ref(30),
-  accessToken = ref(""),
-  plan = ref(""),
-  pending = ref(false),
-  planError = ref("");
+  notice = ref("");
 const sortedRecords = computed(() =>
   [...records.value].sort((a, b) => b.date.localeCompare(a.date)),
 );
@@ -71,29 +65,6 @@ function deleteRecord(id: string) {
   if (confirm("이 연습 기록을 삭제할까요?"))
     records.value = records.value.filter((r) => r.id !== id);
 }
-async function generatePlan() {
-  pending.value = true;
-  planError.value = "";
-  try {
-    const result = await $fetch("/api/plan", {
-      method: "POST",
-      headers: { "x-plan-token": accessToken.value },
-      body: {
-        goal: goal.value,
-        dailyMinutes: dailyMinutes.value,
-        songs: songs.value.slice(0, 50),
-        records: sortedRecords.value.slice(0, 100),
-      },
-    });
-    plan.value = result.plan;
-  } catch (e: any) {
-    planError.value =
-      e.data?.statusMessage ||
-      "계획을 생성하지 못했습니다. 잠시 후 다시 시도해 주세요.";
-  } finally {
-    pending.value = false;
-  }
-}
 function exportData() {
   const blob = new Blob(
     [JSON.stringify({ songs: songs.value, records: records.value }, null, 2)],
@@ -103,16 +74,6 @@ function exportData() {
   const a = document.createElement("a");
   a.href = url;
   a.download = `fret-lab-${today.value}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-function downloadPlan() {
-  const url = URL.createObjectURL(
-    new Blob([plan.value], { type: "text/plain;charset=utf-8" }),
-  );
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "fret-lab-weekly-plan.txt";
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -137,8 +98,8 @@ watch(tab, () => {
           :class="{ active: tab === item }"
           @click="tab = item"
         >
-          <span>{{ ["◫", "▤", "♫", "✧"][i] }}</span
-          >{{ item }}<b v-if="item === '주간 계획'">AI</b>
+          <span>{{ ["◫", "▤", "♫"][i] }}</span
+          >{{ item }}
         </button>
       </nav>
       <div class="sidebar-bottom">
@@ -356,17 +317,6 @@ watch(tab, () => {
                 </div>
               </div>
             </section>
-            <section class="plan-teaser">
-              <span class="chip">✧ AI PRACTICE COACH</span>
-              <h2>다음 한 주,<br />어떻게 연습할까요?</h2>
-              <p>
-                나의 연습 기록과 목표를 바탕으로<br />Claude가 맞춤 연습 계획을
-                만들어 줘요.
-              </p>
-              <button @click="tab = '주간 계획'">
-                나만의 계획 만들기 <span>↗</span>
-              </button>
-            </section>
           </div>
         </template>
         <template v-else-if="tab === '연습 기록'"
@@ -441,7 +391,7 @@ watch(tab, () => {
             </article>
           </section></template
         >
-        <template v-else-if="tab === '연습곡'"
+        <template v-else
           ><section class="card">
             <h2>새로운 레퍼토리</h2>
             <form class="form-grid" @submit.prevent="addSong">
@@ -494,60 +444,6 @@ watch(tab, () => {
               </button>
             </article>
           </section></template
-        >
-        <template v-else
-          ><div class="plan-layout">
-            <section class="card">
-              <span class="eyebrow">POWERED BY CLAUDE</span>
-              <h2>나에게 맞는 일주일</h2>
-              <p class="muted">
-                최근 100개의 연습 기록과 최대 50개의 연습곡이 Claude에
-                전송됩니다.
-              </p>
-              <form class="plan-form" @submit.prevent="generatePlan">
-                <label
-                  >이번 주 목표<textarea
-                    v-model="goal"
-                    maxlength="500"
-                    required
-                  ></textarea></label
-                ><label
-                  >하루 연습 시간 (분)<input
-                    v-model.number="dailyMinutes"
-                    type="number"
-                    min="10"
-                    max="180"
-                    required /></label
-                ><label
-                  >접근 토큰 (서버에서 설정한 경우)<input
-                    v-model="accessToken"
-                    type="password"
-                    autocomplete="off"
-                    placeholder="토큰은 저장되지 않습니다" /></label
-                ><button class="primary" :disabled="pending">
-                  {{ pending ? "계획을 만들고 있어요…" : "✧ 주간 계획 생성" }}
-                </button>
-                <p class="muted">
-                  계획 생성 시 Claude API 사용 요금이 발생할 수 있습니다.
-                </p>
-              </form>
-              <p v-if="planError" class="error" role="alert">{{ planError }}</p>
-            </section>
-            <section class="card plan-result" aria-live="polite">
-              <div class="section-heading">
-                <h2>이번 주 연습 가이드</h2>
-                <button v-if="plan" class="text-button" @click="downloadPlan">
-                  저장 ↓
-                </button>
-              </div>
-              <pre v-if="plan">{{ plan }}</pre>
-              <div v-else class="empty">
-                <span>✧</span>
-                <h3>좋은 연습에는 방향이 있어요.</h3>
-                <p>목표를 입력하고 나만의 계획을 만들어 보세요.</p>
-              </div>
-            </section>
-          </div></template
         >
         <footer>
           FRET LAB <span>매일의 연습이, 나만의 음악으로.</span

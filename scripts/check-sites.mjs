@@ -33,19 +33,8 @@ const denied = await worker.fetch(
   context,
 );
 assert.equal(denied.status, 405);
-const noKey = await worker.fetch(
-  new Request("https://fret-lab.test/api/plan", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: "{}",
-  }),
-  {},
-  context,
-);
-assert.equal(noKey.status, 503);
-assert.match(await noKey.text(), /API 키/);
 const hosting = JSON.parse(await readFile("dist/.openai/hosting.json", "utf8"));
 assert.equal(hosting.project_id, "appgprj_6ae0033639a081918b3faa15298da37f");
 console.log(
-  "Sites Worker smoke checks passed: SSR, JS asset, HEAD, method rejection, missing-key API, project identity.",
+  "Sites Worker smoke checks passed: SSR, JS asset, HEAD, method rejection, project identity.",
 );

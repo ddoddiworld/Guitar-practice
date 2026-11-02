@@ -22,12 +22,6 @@ export const recordSchema = z.object({
 });
 export type Song = z.infer<typeof songSchema>;
 export type PracticeRecord = z.infer<typeof recordSchema>;
-export const planRequestSchema = z.object({
-  goal: z.string().trim().min(1).max(500),
-  dailyMinutes: z.number().int().min(10).max(180),
-  songs: z.array(songSchema).max(50),
-  records: z.array(recordSchema).max(100),
-});
 export function localDate(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
